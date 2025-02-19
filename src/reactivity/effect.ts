@@ -2,19 +2,22 @@
 
 let activeEffect :null|ReactiveEffect
 class ReactiveEffect{
-    private _fn:any
-    constructor(fn){
+    private _fn:Function
+    schelduler:Function
+    constructor(fn:Function,options:any){
         this._fn = fn
+        this.schelduler = options.schelduler 
     }
     run(){
         activeEffect = this
         const result = this._fn()
         return result
     }
+    sc
 }
 
-export function effect(fn:Function){
-    const _effect = new ReactiveEffect(fn)
+export function effect(fn:Function,options:Object = {}){
+    const _effect = new ReactiveEffect(fn,options)
     _effect.run()
     activeEffect = null
     // call立即执行 bind只是绑定上下文
@@ -42,6 +45,17 @@ export function trigger(target:Object,key:string|symbol){
     let depsMap = targetMap.get(target)
     let dep = depsMap.get(key)
     for(let effect of dep){
-        effect.run()
+        if(effect.schelduler){
+            effect.schelduler()
+        }else{
+            effect.run()
+        }
     }
+}
+
+export function stop(runner){
+    // runnner=>dep
+    // map:runner set=>dep
+    // tar
+
 }

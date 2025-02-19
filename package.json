@@ -1,0 +1,19 @@
+{
+  "name": "vuemini",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "jest": "^29.7.0",
+    "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,5 +1,5 @@
 import { reactive } from "../reactive"
-import { effect } from "../effect"
+import { effect,stop } from "../effect"
 it("实现stop停止跟踪功能",()=>{
     let a:any = reactive({
         foo:1

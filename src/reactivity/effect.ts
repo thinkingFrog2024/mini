@@ -4,6 +4,7 @@ let activeEffect :null|ReactiveEffect
 class ReactiveEffect{
     private _fn:Function
     schelduler:Function
+    private active:boolean = true
     constructor(fn:Function,options:any){
         this._fn = fn
         this.schelduler = options.schelduler 
@@ -13,7 +14,15 @@ class ReactiveEffect{
         const result = this._fn()
         return result
     }
-    sc
+    stop(){
+        if(this.active){
+            const depsSet = effectMap.get(this)
+            for(let dep of depsSet){
+                dep.delete(this)
+            }
+            this.active = false
+        }
+    }
 }
 
 export function effect(fn:Function,options:Object = {}){
@@ -21,11 +30,14 @@ export function effect(fn:Function,options:Object = {}){
     _effect.run()
     activeEffect = null
     // call立即执行 bind只是绑定上下文
-    return _effect.run.bind(_effect)
+    const runner:any = _effect.run.bind(_effect)
+    runner.effect = _effect
+    return runner
 }
 
 
 const targetMap = new Map()
+const effectMap = new Map()
 export function track(target:Object,key:string|symbol){
     let depsMap = targetMap.get(target)
     if(!depsMap){
@@ -38,6 +50,12 @@ export function track(target:Object,key:string|symbol){
         depsMap.set(key,dep)
     }
     dep.add(activeEffect)
+    let effects = effectMap.get(activeEffect)
+    if(!effects){
+        effects = new Set()
+        effectMap.set(activeEffect,effects)
+    }
+    effects.add(dep)
 }
 
 
@@ -54,8 +72,5 @@ export function trigger(target:Object,key:string|symbol){
 }
 
 export function stop(runner){
-    // runnner=>dep
-    // map:runner set=>dep
-    // tar
-
+    const effect = runner.effect.stop()
 }

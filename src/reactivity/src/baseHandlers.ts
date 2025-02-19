@@ -1,10 +1,11 @@
 import { isObject } from "../../share"
 import { track,trigger } from "./effect"
-import { reactive } from "./reactive"
+import { reactive, readOnly } from "./reactive"
 import { ReactiveFlags } from "./reactiveFlags"
+import { isTracking } from "./effect"
 
 
-function createGetter(isreadOnly = false){
+function createGetter(isreadOnly = false,shallow = false){
     return function get(target:Object,key:string|symbol){
         switch(key){
             case ReactiveFlags.RAW:{
@@ -20,12 +21,19 @@ function createGetter(isreadOnly = false){
                 break
             }
             default:{
-                if(!isreadOnly){
+                // 当数据活跃并且当前有正在运行的影响时才需要进行track
+                if(!isreadOnly&&isTracking()){
                     track(target,key)
                 }
+
                 const res = Reflect.get(target,key)
+                if(shallow){
+                    return res
+                }
+
+                
                 if(isObject(res)){
-                    return reactive(res)
+                    return isreadOnly?readOnly(res):reactive(res)
                 }else{
                     return res
                 }
@@ -36,7 +44,7 @@ function createGetter(isreadOnly = false){
 
 function createSetter(isreadOnly = false){
     return function set(target:Object,key:string|symbol,val:any){
-        if(!isreadOnly){
+        if(!isreadOnly&&target[key]!==val){
             Reflect.set(target,key,val)
             trigger(target,key)
         }else{
@@ -50,6 +58,7 @@ const readOnlyGetter = createGetter(true)
 const Getter = createGetter(false)
 const readOnlySetter = createSetter(true)
 const Setter = createSetter(false)
+const shallowRadOnlyGetter = createGetter(true,true)
 
 export const mutableHandler = {
     get:Getter,
@@ -59,3 +68,7 @@ export const readOnlyHandler = {
     get:readOnlyGetter,
     set:readOnlySetter
 }
+
+export const shallowRadOnlyHandler = Object.assign({},readOnlyHandler,{
+    get:shallowRadOnlyGetter
+})

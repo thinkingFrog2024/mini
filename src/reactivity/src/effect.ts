@@ -1,11 +1,12 @@
 
-
+// activeEffect不为空证明当前有正在运行的函数 那么才有必要触发依赖收集 否则get陷阱只需要返回访问值即可
 let activeEffect :null|ReactiveEffect
 class ReactiveEffect{
     private _fn:Function
     schelduler?:Function
     private active:boolean = true
     private onStop?:()=>void
+    deps = new Set()
     constructor(fn:Function,options:any){
         this._fn = fn
     }
@@ -33,11 +34,13 @@ export function effect(fn:Function,options:Object = {}){
     return runner
 }
 
+export function isTracking(){
+    return !!activeEffect
+}
+
 
 const targetMap = new Map()
-const effectMap = new Map()
 export function track(target:Object,key:string|symbol){
-    if(!activeEffect)return
     let depsMap = targetMap.get(target)
     if(!depsMap){
         depsMap = new Map()
@@ -48,19 +51,29 @@ export function track(target:Object,key:string|symbol){
         dep = new Set()
         depsMap.set(key,dep)
     }
-    dep.add(activeEffect)
-    let effects = effectMap.get(activeEffect)
-    if(!effects){
-        effects = new Set()
-        effectMap.set(activeEffect,effects)
-    }
-    effects.add(dep)
+    trackEffects(dep)
+    // dep.add(activeEffect)
+    // let effects = effectMap.get(activeEffect)
+    // if(!effects){
+    //     effects = new Set()
+    //     effectMap.set(activeEffect,effects)
+    // }
+    // effects.add(dep)
 }
 
+export function trackEffects(dep){
+    if(dep.has(activeEffect))return
+    dep.add(activeEffect)
+    activeEffect!.deps.add(dep)
+}
 
 export function trigger(target:Object,key:string|symbol){
     let depsMap = targetMap.get(target)
     let dep = depsMap.get(key)
+    triggerEffects(dep)
+}
+
+export function triggerEffects(dep){
     for(let effect of dep){
         if(effect.schelduler){
             effect.schelduler()
@@ -75,7 +88,7 @@ export function stop(runner){
 }
 
 function cleanupEffects(effect,onStop){
-    const depsSet = effectMap.get(effect)
+    const depsSet = effect.deps
     for(let dep of depsSet){
         dep.delete(effect)
         }

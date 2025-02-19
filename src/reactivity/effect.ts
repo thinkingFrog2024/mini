@@ -5,9 +5,11 @@ class ReactiveEffect{
     private _fn:Function
     schelduler:Function
     private active:boolean = true
+    private onStop:Function
     constructor(fn:Function,options:any){
         this._fn = fn
         this.schelduler = options.schelduler 
+        this.onStop = options.onStop 
     }
     run(){
         activeEffect = this
@@ -19,6 +21,9 @@ class ReactiveEffect{
             const depsSet = effectMap.get(this)
             for(let dep of depsSet){
                 dep.delete(this)
+            }
+            if(this.onStop){
+                this.onStop()
             }
             this.active = false
         }

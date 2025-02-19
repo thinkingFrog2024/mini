@@ -8,7 +8,8 @@ class ReactiveEffect{
     }
     run(){
         activeEffect = this
-        this._fn()
+        const result = this._fn()
+        return result
     }
 }
 
@@ -16,6 +17,8 @@ export function effect(fn:Function){
     const _effect = new ReactiveEffect(fn)
     _effect.run()
     activeEffect = null
+    // call立即执行 bind只是绑定上下文
+    return _effect.run.bind(_effect)
 }
 
 

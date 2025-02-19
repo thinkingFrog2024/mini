@@ -3,13 +3,11 @@
 let activeEffect :null|ReactiveEffect
 class ReactiveEffect{
     private _fn:Function
-    schelduler:Function
+    schelduler?:Function
     private active:boolean = true
-    private onStop:Function
+    private onStop?:()=>void
     constructor(fn:Function,options:any){
         this._fn = fn
-        this.schelduler = options.schelduler 
-        this.onStop = options.onStop 
     }
     run(){
         activeEffect = this
@@ -32,6 +30,7 @@ class ReactiveEffect{
 
 export function effect(fn:Function,options:Object = {}){
     const _effect = new ReactiveEffect(fn,options)
+    Object.assign(_effect,options)
     _effect.run()
     activeEffect = null
     // call立即执行 bind只是绑定上下文
@@ -44,6 +43,7 @@ export function effect(fn:Function,options:Object = {}){
 const targetMap = new Map()
 const effectMap = new Map()
 export function track(target:Object,key:string|symbol){
+    if(!activeEffect)return
     let depsMap = targetMap.get(target)
     if(!depsMap){
         depsMap = new Map()

@@ -1,11 +1,29 @@
 import { track,trigger } from "./effect"
+import { ReactiveFlags } from "./reactiveFlags"
+
 
 function createGetter(isreadOnly = false){
     return function get(target:Object,key:string|symbol){
-        if(!isreadOnly){
-            track(target,key)
+        switch(key){
+            case ReactiveFlags.RAW:{
+                return target
+                break
+            }
+            case ReactiveFlags.IS_REACTIVE:{
+                return !isreadOnly
+                break
+            }
+            case ReactiveFlags.IS_READONLY:{
+                return isreadOnly
+                break
+            }
+            default:{
+                if(!isreadOnly){
+                    track(target,key)
+                }
+                return Reflect.get(target,key)
+            }
         }
-        return Reflect.get(target,key)
     }
 }
 

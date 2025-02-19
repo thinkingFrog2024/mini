@@ -16,13 +16,7 @@ class ReactiveEffect{
     }
     stop(){
         if(this.active){
-            const depsSet = effectMap.get(this)
-            for(let dep of depsSet){
-                dep.delete(this)
-            }
-            if(this.onStop){
-                this.onStop()
-            }
+            cleanupEffects(this,this.onStop)
             this.active = false
         }
     }
@@ -78,4 +72,15 @@ export function trigger(target:Object,key:string|symbol){
 
 export function stop(runner){
     const effect = runner.effect.stop()
+}
+
+function cleanupEffects(effect,onStop){
+    const depsSet = effectMap.get(effect)
+    for(let dep of depsSet){
+        dep.delete(effect)
+        }
+    if(onStop){
+        onStop()
+        }
+    depsSet.length = 0
 }

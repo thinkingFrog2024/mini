@@ -1,5 +1,5 @@
 
-import { reactive } from "../reactive"
+import { reactive } from "../src/reactive"
 it('reactive基本框架',()=>{
     const origin = {
         foo:1

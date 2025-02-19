@@ -1,5 +1,5 @@
-import { reactive, readOnly,isReadOnly,isReactive } from "../reactive"
-import { ReactiveFlags } from "../reactiveFlags"
+import { reactive, readOnly,isReadOnly,isReactive } from "../src/reactive"
+import { ReactiveFlags } from "../src/reactiveFlags"
 it('实现readOnly只读对象',()=>{
     const origin = {
         foo:1

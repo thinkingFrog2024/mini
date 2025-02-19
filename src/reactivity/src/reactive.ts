@@ -19,7 +19,15 @@ export function isReadOnly(target:any){
 
 
 export function isReactive(target:any){
-    return !target[ReactiveFlags.IS_READONLY]
+    // console.log(target[ReactiveFlags.IS_READONLY],!!(!undefined))
+    // if(target[ReactiveFlags.IS_READONLY] === false){
+    //     return true
+    // }
+    // if(target[ReactiveFlags.IS_READONLY] === true||target[ReactiveFlags.IS_READONLY] = undefined={}){
+    //     return false
+    // }
+
+    return !!(target[ReactiveFlags.IS_REACTIVE])
 }
 
 

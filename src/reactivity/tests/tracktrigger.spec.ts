@@ -1,5 +1,5 @@
-import { effect } from "../effect";
-import { reactive } from "../reactive";
+import { effect } from "../src/effect";
+import { reactive } from "../src/reactive";
 it('依赖收集触发依赖',()=>{
     let a:any = reactive({
         foo:1

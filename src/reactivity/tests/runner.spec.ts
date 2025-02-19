@@ -1,5 +1,5 @@
-import { effect } from "../effect"
-import { reactive } from "../reactive"
+import { effect } from "../src/effect"
+import { reactive } from "../src/reactive"
 
 it('effect的runner功能',()=>{
     let a:any = reactive({

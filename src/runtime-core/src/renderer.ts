@@ -11,8 +11,6 @@ function patch(vnode,container){
     if(typeof vnode.type === 'string'){
         processElememt(vnode,container)
     }else if(isObject(vnode.type)){
-        console.log('处理组件');
-        
         processComponent(vnode,container)
     }
 }
@@ -44,7 +42,7 @@ function mountElement(vnode,container){
         el.setAttribute(key,props[key])
     }
     
-    if(typeof children === 'string'){
+    if(typeof children === 'string'||typeof children === 'number'){
         el.textContent = children
     }else if(Array.isArray(children)){
         children.forEach(ele=>{
@@ -57,8 +55,7 @@ function mountElement(vnode,container){
 }
 
 function setupRenderEffect(instance,container){
-    const subTree = instance.render()
-    console.log('sub',instance.render);
-    
+    const {proxy} = instance
+    const subTree = instance.render.call(proxy)
     patch(subTree,container)
 }

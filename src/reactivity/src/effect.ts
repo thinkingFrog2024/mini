@@ -5,13 +5,17 @@ class ReactiveEffect{
     private _fn:Function
     schelduler?:Function
     private active:boolean = true
-    private onStop?:()=>void
+    public onStop?:()=>void
     deps = new Set()
     constructor(fn:Function,options:any){
         this._fn = fn
     }
     run(){
-        activeEffect = this
+        // 如果当前函数不处于活跃状态 也就是这个runner被stop了 此时若是继续调用runner 应该只执行函数而不收集依赖
+        // 否则调用runner之后 函数会被再次添加到依赖列表
+        if(this.active){
+            activeEffect = this
+        }
         const result = this._fn()
         return result
     }
@@ -52,13 +56,6 @@ export function track(target:Object,key:string|symbol){
         depsMap.set(key,dep)
     }
     trackEffects(dep)
-    // dep.add(activeEffect)
-    // let effects = effectMap.get(activeEffect)
-    // if(!effects){
-    //     effects = new Set()
-    //     effectMap.set(activeEffect,effects)
-    // }
-    // effects.add(dep)
 }
 
 export function trackEffects(dep){
@@ -68,13 +65,32 @@ export function trackEffects(dep){
 }
 
 export function trigger(target:Object,key:string|symbol){
+    // let depsMap = targetMap.get(target)
+    // if(!depsMap) return 
+    // let dep = depsMap.get(key)
+    // triggerEffects(dep)
+
+    // 现在只实现的get和set 但是其实有其他的操作 比如delete 这些操作也有对应的effects需要触发
+    // 所以应该初始化两个数组:deps 存放所有的dep effects 遍历deps 把里面的函数解构出来存放在efffects里面
+    // 然后把处理好的effect交给triggerEffects处理
+    let deps:Array<any> = []
+
+    // 取出get对应的effects并存放
     let depsMap = targetMap.get(target)
+    if(!depsMap) return //注意这里可能是不存在的
     let dep = depsMap.get(key)
-    triggerEffects(dep)
+    deps.push(dep)
+
+    let effects:Array<any> = []
+    deps.forEach(dep=>{
+        effects.push(...dep)
+    })
+    triggerEffects(effects)
 }
 
 export function triggerEffects(dep){
     for(let effect of dep){
+        // nextTick就是通过schelduler实现的
         if(effect.schelduler){
             effect.schelduler()
         }else{

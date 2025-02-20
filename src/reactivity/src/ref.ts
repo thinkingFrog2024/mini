@@ -42,10 +42,10 @@ export function unRef(ref){
 
 export function proxyRefs(objWithRef){
     return new Proxy(objWithRef,{
-        get:(target,key)=>{
-            return unRef(Reflect.get(target,key))
+        get:(target,key,receiver)=>{
+            return unRef(Reflect.get(target,key,receiver))
         },
-        set:(target,key,val)=>{
+        set:(target,key,val,receiver)=>{
             // ref normal
             // ref ref
             // n r
@@ -53,7 +53,7 @@ export function proxyRefs(objWithRef){
             if(!isRef(val)&&isRef(target[key])){
                 return target[key].value = val
             }else{
-                return Reflect.set(target,key,val)
+                return Reflect.set(target,key,val,receiver)
             }
         }
     })

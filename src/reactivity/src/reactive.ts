@@ -34,6 +34,15 @@ export function isProxy(target:any){
     return isReactive(target)||isReadOnly(target)
 }
 
+export function toRaw(obj){
+    // 如果是普通对象 直接返回 如果是代理对象返回源对象
+    if(!obj){
+        console.warn('对象值无效:',obj)
+    }else{
+        return obj[ReactiveFlags.RAW]?obj[ReactiveFlags.RAW]:obj
+    }
+}
+
 function createActiveObject(raw:any,proxyMap,handler){
     // 如果需要代理的对象是已经代理过的对象 那么直接返回
     if(proxyMap.get(raw))return proxyMap.get(raw)

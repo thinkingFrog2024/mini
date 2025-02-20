@@ -16,6 +16,8 @@ it("实现stop停止跟踪功能",()=>{
     expect(b).toBe(1)
     runner()
     expect(b).toBe(2)
+    a.foo = 12
+    expect(b).toBe(2)
 })
 it("实现onstop停功能",()=>{
     let a:any = reactive({

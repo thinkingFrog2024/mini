@@ -42,7 +42,13 @@ function mountElement(vnode,container){
     
     const {children,props} = vnode
     for(let key in props){
-        el.setAttribute(key,props[key])
+        const ison = (key:string)=>/^on[A-Z]/.test(key)
+        if(ison(key)){
+            const event = key.slice(2).toLowerCase()
+            el.addEventListener(event,props[key])
+        }else{
+            el.setAttribute(key,props[key])
+        }
     }
     
     if(shapeFlag & SHAPEFLAGS.text_children){

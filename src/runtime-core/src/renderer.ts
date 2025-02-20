@@ -29,14 +29,15 @@ function processElememt(vnode,container){
 function mountComponent(vnode,container){
     const instance = createComponentInstance(vnode)
     setupComponent(instance)
-    console.log('组件实例',instance);
-    
     // 组件完成setup开始render 渲染视图
-    setupRenderEffect(instance,container)
+    setupRenderEffect(instance,vnode,container)
 }
 
 function mountElement(vnode,container){
-    const el = document.createElement(vnode.type)
+
+    const el =( vnode.el = document.createElement(vnode.type))
+    console.log(vnode);
+    
     const {children,props} = vnode
     for(let key in props){
         el.setAttribute(key,props[key])
@@ -54,8 +55,13 @@ function mountElement(vnode,container){
 
 }
 
-function setupRenderEffect(instance,container){
+function setupRenderEffect(instance,vnode,container){
     const {proxy} = instance
     const subTree = instance.render.call(proxy)
     patch(subTree,container)
+    console.log(instance.vnode);
+    
+    vnode.el = subTree.el
+    console.log('instance.vnode.el',vnode);
+    
 }

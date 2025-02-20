@@ -1,5 +1,6 @@
 const publicPropertiesMAp = {
-    $el:(i)=>i.vnode.el
+    $el:(i)=>i.vnode.el,
+    $slots:(i)=>i.slots
 }
 
 

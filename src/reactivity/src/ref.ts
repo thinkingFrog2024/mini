@@ -16,9 +16,7 @@ class RefImpl{
         this._raw = val
     }
     get value(){
-        if(isTracking()){
-            trackEffects(this.deps)
-        }
+        trackEffects(this.deps)
         // 如果接收的值是对象 那么_val需要用reactive包裹
         return this._val
     }

@@ -1,13 +1,13 @@
 
 // activeEffect不为空证明当前有正在运行的函数 那么才有必要触发依赖收集 否则get陷阱只需要返回访问值即可
 let activeEffect :null|ReactiveEffect
-class ReactiveEffect{
+export class ReactiveEffect{
     private _fn:Function
-    schelduler?:Function
+    // schelduler?:Function
     private active:boolean = true
     public onStop?:()=>void
     deps = new Set()
-    constructor(fn:Function,options:any){
+    constructor(fn:Function,public schelduler?){
         this._fn = fn
     }
     run(){
@@ -59,9 +59,11 @@ export function track(target:Object,key:string|symbol){
 }
 
 export function trackEffects(dep){
-    if(dep.has(activeEffect))return
-    dep.add(activeEffect)
-    activeEffect!.deps.add(dep)
+    if(isTracking()){
+        if(dep.has(activeEffect))return
+        dep.add(activeEffect)
+        activeEffect!.deps.add(dep)
+    }
 }
 
 export function trigger(target:Object,key:string|symbol){

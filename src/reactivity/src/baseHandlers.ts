@@ -42,7 +42,7 @@ function createGetter(isreadOnly = false,shallow = false){
             }
             default:{
                 // 当数据活跃并且当前有正在运行的影响时才需要进行track
-                if(!isreadOnly&&isTracking()){
+                if(!isreadOnly){
                     track(target,key)
                 }
 

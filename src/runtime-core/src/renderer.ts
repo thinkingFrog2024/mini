@@ -12,11 +12,8 @@ function patch(vnode,container){
     const {shapeFlag} = vnode
 
     if(shapeFlag&SHAPEFLAGS.element){
-        console.log('element',vnode.type);
-        
         processElememt(vnode,container)
     }else if(shapeFlag&SHAPEFLAGS.stateful_component){
-        console.log('compo',vnode.type);
 
         processComponent(vnode,container)
     }
@@ -42,7 +39,7 @@ function mountComponent(vnode,container){
 
 function mountElement(vnode,container){
     const {shapeFlag} = vnode
-    console.log('tag',vnode.type,typeof vnode.type);
+    console.log('vnode',vnode);
     
     const el =( vnode.el = document.createElement(vnode.type))
     
@@ -60,7 +57,9 @@ function mountElement(vnode,container){
     if(shapeFlag & SHAPEFLAGS.text_children){
         el.textContent = children
     }else if(shapeFlag & SHAPEFLAGS.array_children){
+        
         children.forEach(ele=>{
+            
             patch(ele,el)
         })
     }
@@ -73,7 +72,6 @@ function setupRenderEffect(instance,vnode,container){
     const {proxy} = instance
     const subTree = instance.render.call(proxy)
     patch(subTree,container)
-    
     vnode.el = subTree.el
     
 }

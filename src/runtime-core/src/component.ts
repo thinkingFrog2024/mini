@@ -7,6 +7,8 @@ export function createComponentInstance(vnode){
     return component
 }
 
+
+
 export function setupComponent(instance){
     // init
     setupStatefulComponent(instance)

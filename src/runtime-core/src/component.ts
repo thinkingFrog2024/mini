@@ -1,10 +1,13 @@
 import { isObject } from "../../share"
 import { publicinstanceProxyHandlers } from "./componentPublicInstanceProxy"
+import { initProps } from "./componentProps"
+import { shallowReadOnly } from "../../reactivity/src/reactive"
 export function createComponentInstance(vnode){
     const component = {
         vnode,
         type:vnode.type,
-        setupState:{}
+        setupState:{},
+        props:{}
     }
     return component
 }
@@ -13,6 +16,7 @@ export function createComponentInstance(vnode){
 
 export function setupComponent(instance){
     // init
+    initProps(instance,instance.vnode.props)
     setupStatefulComponent(instance)
 }
 
@@ -24,7 +28,8 @@ function setupStatefulComponent(instance){
 
     const {setup} = component
     if(setup){
-        const setupResult = setup()//setup的返回值可能是函数 也可能是对象 
+        // props是一个浅层只读
+        const setupResult = setup(shallowReadOnly(instance.props))//setup的返回值可能是函数 也可能是对象 
         handleSetupResult(instance,setupResult)
     }
     finishComponentSetup(instance)

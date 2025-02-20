@@ -10,9 +10,14 @@ export function render(vnode,container){
 function patch(vnode,container){
     // 当类型为组件 vnode.type是一个对象 当类型为element 是一个string
     const {shapeFlag} = vnode
+
     if(shapeFlag&SHAPEFLAGS.element){
+        console.log('element',vnode.type);
+        
         processElememt(vnode,container)
     }else if(shapeFlag&SHAPEFLAGS.stateful_component){
+        console.log('compo',vnode.type);
+
         processComponent(vnode,container)
     }
 }
@@ -37,8 +42,9 @@ function mountComponent(vnode,container){
 
 function mountElement(vnode,container){
     const {shapeFlag} = vnode
+    console.log('tag',vnode.type,typeof vnode.type);
+    
     const el =( vnode.el = document.createElement(vnode.type))
-    console.log(vnode);
     
     const {children,props} = vnode
     for(let key in props){
@@ -55,7 +61,7 @@ function mountElement(vnode,container){
         el.textContent = children
     }else if(shapeFlag & SHAPEFLAGS.array_children){
         children.forEach(ele=>{
-            mountElement(ele,el)
+            patch(ele,el)
         })
     }
     container.append(el)
@@ -67,9 +73,7 @@ function setupRenderEffect(instance,vnode,container){
     const {proxy} = instance
     const subTree = instance.render.call(proxy)
     patch(subTree,container)
-    console.log(instance.vnode);
     
     vnode.el = subTree.el
-    console.log('instance.vnode.el',vnode);
     
 }

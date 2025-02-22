@@ -6,7 +6,7 @@ export default {
         window.self = this
         // 在这个地方获取￥el得到的结果是null 因为￥el是在所有子节点完成挂载之后初始化的
         // return h('div',{nae:'s'},[h(foo,{count:1},h('p',{},'p'),),h(foo,{count:1},[h('p',{},'p'),h('p',{},'p')],)])
-        return h('p',{name:'app'},[h(foo,{},{head:h('p',{},'head'),foot:h('p',{},'foot')})])
+        return h('p',{name:'app'},[h(foo,{},{head:({head})=>h('p',{},head),foot:({foot})=>h('p',{},foot)})])
     },  
     setup(){
         return{

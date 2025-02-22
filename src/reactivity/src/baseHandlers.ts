@@ -1,6 +1,6 @@
 import { isObject } from "../../share"
 import { track,trigger } from "./effect"
-import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnly, shallowReadOnlyMap } from "./reactive"
+import { reactive, reactiveMap, readOnly, readOnlyMap, shallowReadOnlyMap } from "./reactive"
 import { ReactiveFlags } from "./reactiveFlags"
 import { isTracking } from "./effect"
 

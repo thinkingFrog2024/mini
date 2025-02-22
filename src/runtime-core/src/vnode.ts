@@ -51,7 +51,7 @@ export class VNode {
             this.shapeFlag |= SHAPEFLAGS.text_children;
         }
         
-        if(this.shapeFlag&SHAPEFLAGS.stateful_component&&(typeof this.children === 'function'||isObject(children)||Array.isArray(children))){
+        if(this.shapeFlag&SHAPEFLAGS.stateful_component&&(typeof this.children ===  'function'||isObject(children)||Array.isArray(children))){
             this.shapeFlag |= SHAPEFLAGS.slot_children
         }
     }

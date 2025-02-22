@@ -12,7 +12,8 @@ export function createComponentInstance(vnode,parents){
         props:{},
         emit:(event)=>{},
         slots:{},
-        provides:{},
+        // 如果当前组件没有注入的内容 就把provides设置成父级的provides
+        provides:parents?parents.provides:{},
         parents,
     }
     component.emit = emit.bind(null,component)

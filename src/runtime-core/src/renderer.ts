@@ -39,9 +39,7 @@ function mountComponent(vnode,container){
 
 function mountElement(vnode,container){
     const {shapeFlag} = vnode
-    
     const el =( vnode.el = document.createElement(vnode.type))
-    
     const {children,props} = vnode
     for(let key in props){
         const ison = (key:string)=>/^on[A-Z]/.test(key)
@@ -56,6 +54,7 @@ function mountElement(vnode,container){
     if(shapeFlag & SHAPEFLAGS.text_children){
         el.textContent = children
     }else if(shapeFlag & SHAPEFLAGS.array_children){
+        console.log('children',children,vnode);
         
         children.forEach(ele=>{
             

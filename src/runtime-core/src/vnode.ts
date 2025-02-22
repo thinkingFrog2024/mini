@@ -50,18 +50,23 @@ export class VNode {
         } else {
             this.shapeFlag |= SHAPEFLAGS.text_children;
         }
+        
+        if(this.shapeFlag&SHAPEFLAGS.stateful_component&&(typeof this.children === 'function'||isObject(children)||Array.isArray(children))){
+            this.shapeFlag |= SHAPEFLAGS.slot_children
+        }
     }
 
-    // 获取 shapeFlag 的逻辑
     getShapeFlag(type) {
         return isObject(type)
             ? SHAPEFLAGS.stateful_component
             : SHAPEFLAGS.element;
     }
+
 }
 
 export function createVnode(type, props:any = null, children:any ) {
-    console.log('createVnode',children);
+    const vnode = new VNode(type, props, children);
+    console.log(vnode.shapeFlag,'shap');
     
-    return new VNode(type, props, children);
+    return vnode
 }

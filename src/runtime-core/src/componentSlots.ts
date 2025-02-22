@@ -3,13 +3,15 @@ import { SHAPEFLAGS } from "../../share/ShapeFlags"
 import { h } from "./h"
 import { createVnode } from "./vnode"
 import { VNode } from "./vnode"
+import { Fragment } from "./symbol"
 
-
+// slots是属于某个组件`的 而不是节点的
 function normalizeSlots (val){
     return Array.isArray(val)?val:[val]
 }
 
 export function initSlots(instance,children){
+    console.log(instance.vnode.shapeFlag);
     
     if(instance.vnode.shapeFlag&SHAPEFLAGS.slot_children){
         
@@ -57,18 +59,26 @@ export function renderSlots(slots,name,prop){
 
     if(Array.isArray(slots)){
         
-        return createVnode('div',{},slots)
+        return createVnode(Fragment,{},slots)
     }else if(isObject(slots)&&name){
         
         const slot = slots[name]
+        if(!slot){
+            return
+        }
+        
         if(typeof slot === 'function'){
-            return createVnode('div',{},slot(prop))
+            console.log('具名函数');
+            
+            return createVnode(Fragment,{},slot(prop))
         }else{
-            return createVnode('div',{},slot)
+            console.log('具名节点');
+            
+            return createVnode(Fragment,{},slot)
         }
     }else if(typeof slots ==='function'){
         console.log('函数');
         
-        return createVnode('div',{},slots(prop))
+        return createVnode(Fragment,{},slots(prop))
     }
 }

@@ -10,7 +10,7 @@ export default {
         // return h('div',{nae:'s'},[h(foo,{count:1},h('p',{},'p'),),h(foo,{count:1},[h('p',{},'p'),h('p',{},'p')],)])
         return h('section',{name:'app'},
             [
-
+                // 前两个渲染了两个div
                 h(foo,{},{head:({head})=>h('p',{},head)}),
                 h(foo,{},{head:h('p',{},'秒')}),
                 h(defa,{},h('p',{},'我是默认插槽')),

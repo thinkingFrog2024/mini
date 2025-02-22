@@ -29,7 +29,7 @@
 
 import { isObject } from "../../share";
 import { SHAPEFLAGS } from "../../share/ShapeFlags";
-
+import { TextNode } from "./symbol";
 export class VNode {
     public type
     public props
@@ -64,9 +64,14 @@ export class VNode {
 
 }
 
-export function createVnode(type, props:any = null, children:any ) {
+export function createVnode(type, props:any = null, children:any = null ) {
     const vnode = new VNode(type, props, children);
-    console.log(vnode.shapeFlag,'shap');
+    console.log('创建节点的type:',vnode.type,"shape",vnode.shapeFlag);
     
     return vnode
+}
+
+
+export function createTextNode (text){
+    return createVnode(TextNode,{},text)
 }

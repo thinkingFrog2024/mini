@@ -1,7 +1,7 @@
 import { isObject } from "../../share";
 import { SHAPEFLAGS } from "../../share/ShapeFlags";
 import { createComponentInstance,setupComponent } from "./component"
-
+import { Fragment,TextNode } from "./symbol";
 
 export function render(vnode,container){
     patch(vnode,container)
@@ -9,16 +9,35 @@ export function render(vnode,container){
 
 function patch(vnode,container){
     // 当类型为组件 vnode.type是一个对象 当类型为element 是一个string
-    const {shapeFlag} = vnode
-
-    if(shapeFlag&SHAPEFLAGS.element){
-        processElememt(vnode,container)
-    }else if(shapeFlag&SHAPEFLAGS.stateful_component){
-
-        processComponent(vnode,container)
+    const {shapeFlag,type} = vnode
+    switch(type){
+        case Fragment:
+            processFragment(vnode,container)
+            break
+        case TextNode:
+            processTextNode(vnode,container)
+            break
+        default:
+            if(shapeFlag&SHAPEFLAGS.element){
+                processElememt(vnode,container)
+            }else if(shapeFlag&SHAPEFLAGS.stateful_component){
+                processComponent(vnode,container)
+            }
     }
 }
 
+function processFragment(vnode,container){
+    const children = vnode.children
+    children.forEach(ele=>{
+        patch(ele,container)
+    })
+}
+
+
+function processTextNode(vnode,container){
+    const text = document.createTextNode(vnode.children)
+    container.append(text)
+}
 
 function processComponent(vnode,container){
     // 初始化

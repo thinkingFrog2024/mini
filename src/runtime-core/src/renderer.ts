@@ -39,7 +39,6 @@ function mountComponent(vnode,container){
 
 function mountElement(vnode,container){
     const {shapeFlag} = vnode
-    console.log('vnode',vnode);
     
     const el =( vnode.el = document.createElement(vnode.type))
     

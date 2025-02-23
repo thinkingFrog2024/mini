@@ -5,7 +5,6 @@ function append(content,container){
 
 function createElement(type){
     const ele = document.createElement(type)
-    console.log(ele,'ele');
     
     return ele
 }

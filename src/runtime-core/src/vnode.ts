@@ -66,7 +66,6 @@ export class VNode {
 
 export function createVnode(type, props:any = null, children:any = null ) {
     const vnode = new VNode(type, props, children);
-    console.log('创建节点的type:',vnode.type,"shape",vnode.shapeFlag);
     
     return vnode
 }

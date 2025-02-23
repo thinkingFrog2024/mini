@@ -93,8 +93,6 @@ export function trigger(target:Object,key:string|symbol){
 
 export function triggerEffects(dep){
     for(let effect of dep){
-        console.log(effect.schelduler);
-        
         // nextTick就是通过schelduler实现的
         if(effect.schelduler){
             effect.schelduler()

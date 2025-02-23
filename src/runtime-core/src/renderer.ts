@@ -89,7 +89,6 @@ function mountElement(vnode,container,parent){
         // el.textContent = children
         setContent(children,el)
     }else if(shapeFlag & SHAPEFLAGS.array_children){
-        console.log('children',children,vnode);
         
         children.forEach(ele=>{
             
@@ -105,10 +104,26 @@ function mountElement(vnode,container,parent){
 
 function setupRenderEffect(instance,vnode,container){
     effect(()=>{
-        const {proxy} = instance
-        const subTree = instance.render.call(proxy)
-        patch(subTree,container,instance)
-        vnode.el = subTree.el
+        if(!instance.isMounted){
+            console.log('初始化');
+            
+            const {proxy} = instance
+            const subTree =( instance.subTree =  instance.render.call(proxy))
+            patch(subTree,container,instance)
+            vnode.el = subTree.el
+            instance.isMounted = true
+        }else{
+            console.log('更新');
+            
+            const {proxy} = instance
+            const subTree =( instance.subTree =  instance.render.call(proxy))
+            const prevTree = instance.subTree
+
+            // 对比逻辑
+            // 更新subtree
+            instance.subTree = subTree
+        }
+        
     })
     }
     return{

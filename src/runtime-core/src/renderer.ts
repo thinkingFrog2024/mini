@@ -16,51 +16,63 @@ const{
 } = options
 
 function render(vnode,container,parent = null){
-    patch(vnode,container,parent)
+    patch(null,vnode,container,parent)
 }
 
-function patch(vnode,container,parent){
+
+// n1=>old
+// n2->new
+function patch(n1,n2,container,parent){
     // 当类型为组件 vnode.type是一个对象 当类型为element 是一个string
-    const {shapeFlag,type} = vnode
+    const {shapeFlag,type} = n2
     switch(type){
         case Fragment:
-            processFragment(vnode,container,parent)
+            processFragment(n1,n2,container,parent)
             break
         case TextNode:
-            processTextNode(vnode,container)
+            processTextNode(n1,n2,container)
             break
         default:
             if(shapeFlag&SHAPEFLAGS.element){
-                processElememt(vnode,container,parent)
+                processElememt(n1,n2,container,parent)
             }else if(shapeFlag&SHAPEFLAGS.stateful_component){
-                processComponent(vnode,container,parent)
+                processComponent(n1,n2,container,parent)
             }
     }
 }
 
-function processFragment(vnode,container,parent){
-    const children = vnode.children
+function processFragment(n1,n2,container,parent){
+    const children = n2.children
     children.forEach(ele=>{
-        patch(ele,container,parent)
+        patch(null,ele,container,parent)
     })
 }
 
 
-function processTextNode(vnode,container){
-    const text = document.createTextNode(vnode.children)
+function processTextNode(n1,n2,container){
+    const text = document.createTextNode(n2.children)
     // container.append(text)
     append(text,container)
     
 }
 
-function processComponent(vnode,container,parent){
+function processComponent(n1,n2,container,parent){
     // 初始化
-    mountComponent(vnode,container,parent)
+    mountComponent(n2,container,parent)
 }
 
-function processElememt(vnode,container,parent){
-    // 更新
-    mountElement(vnode,container,parent)
+function processElememt(n1,n2,container,parent){
+    if(n1){
+        console.log('更新element');
+        patchElement(n1,n2,container)
+    }else{
+        console.log('初始化ele');
+        mountElement(n2,container,parent)
+    }
+}
+
+function patchElement(n1,n2,container){
+
 }
 
 function mountComponent(vnode,container,parent){
@@ -92,7 +104,7 @@ function mountElement(vnode,container,parent){
         
         children.forEach(ele=>{
             
-            patch(ele,el,parent)
+            patch(null,ele,el,parent)
         })
     }
     // container.append(el)
@@ -109,7 +121,7 @@ function setupRenderEffect(instance,vnode,container){
             
             const {proxy} = instance
             const subTree =( instance.subTree =  instance.render.call(proxy))
-            patch(subTree,container,instance)
+            patch(null,subTree,container,instance)
             vnode.el = subTree.el
             instance.isMounted = true
         }else{
@@ -118,10 +130,11 @@ function setupRenderEffect(instance,vnode,container){
             const {proxy} = instance
             const subTree =( instance.subTree =  instance.render.call(proxy))
             const prevTree = instance.subTree
-
+            patch(prevTree,subTree,container,parent)
             // 对比逻辑
             // 更新subtree
             instance.subTree = subTree
+
         }
         
     })

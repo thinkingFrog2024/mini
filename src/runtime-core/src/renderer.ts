@@ -5,6 +5,7 @@ import { createComponentInstance,setupComponent } from "./component"
 import { createAppApi } from "./createApp";
 import { Fragment,TextNode } from "./symbol";
 
+// el:吧真实节点挂载在虚拟节点上面 如果在数组里面的文本虚拟节点也要记录el 就要把createVnode（textNode）函数返回的vnode上面的el绑定上真实节点
 
 // 实现自定义渲染器
 export function createRender(options){
@@ -12,7 +13,8 @@ const{
     append,
     createElement,
     patchProps,
-    setContent
+    setContent,
+    removeChilds
 } = options
 
 function render(vnode,container,parent = null){
@@ -51,6 +53,8 @@ function processFragment(n1,n2,container,parent){
 
 function processTextNode(n1,n2,container){
     const text = document.createTextNode(n2.children)
+    // n2=>new n1=>old
+    n2.el = text
     // container.append(text)
     append(text,container)
     
@@ -73,41 +77,61 @@ function processElememt(n1,n2,container,parent){
 
 function patchElement(n1,n2,container){
     // 更新props
-    const oldProps = n1.props
-    const newProps = n2.props
+    const oldProps = n1.props||{}
+    const newProps = n2.props||{}
     const el = (n2.el = n1.el) 
-    console.log('新：',newProps,'旧',oldProps);
     // 遍历新props的key 和旧的对比 如果不一样 可能是发生了修改或者添加
     // new old==>setAttr//修改
     // undefined old==>//删除
     // val undefied==>set//添加
     // 遍历旧的 如果不一样 可能是发生了删除
     // old undefied==>remove//删除
+
+    // 添加了新的事件 只能添加 不能删除
     updateElementProps(newProps,oldProps,el)
     
+    updateElementChildren(n1,n2,container)
 }
 
 function updateElementProps(newProps,oldProps,el){
-    for(let key in newProps){
-        if(newProps[key]!=oldProps[key]){
-            setElementProps(newProps[key],key,el)
+    if(!(oldProps!=newProps)){
+        for(let key in newProps){
+            if(newProps[key]!=oldProps[key]){
+                patchProps(key,oldProps[key],newProps[key],el)
+            }
         }
-    }
-    for(let key in oldProps){
-        if(oldProps[key]!=newProps[key]){
-            setElementProps(newProps[key],key,el)
+        for(let key in oldProps){
+            if(!(key in newProps)){
+                patchProps(key,oldProps[key],null,el)
+            }
         }
     }
 }
 
-function setElementProps(curVal,key,el){
-    if(curVal === undefined){
-        el.removeAttribute(key)
-    }else{
-        el.setAttribute(key,curVal)
+function updateElementChildren(n1,n2,container){
+    const {shapeFlag} = n1
+    const newFlag = n2.shapeFlag
+    // array=>text
+    if(newFlag&SHAPEFLAGS.text_children){
+        if(shapeFlag&SHAPEFLAGS.array_children){
+            // 移除所有子节点 再设置文本内容 这个移除节点也应该是一个稳定的接口
+            unMountedChildren(n1)
+            setContent(n2.children,container)
+        }
     }
+    // text=>array
+    
 }
 
+function unMountedChildren(node){
+    const {children} = node
+    if(children){
+        children.forEach(c => {
+            console.log('c?.el',c.el);
+            removeChilds(c.el)
+        });
+    }
+}
 
 
 
@@ -122,16 +146,9 @@ function mountElement(vnode,container,parent){
     const {shapeFlag} = vnode
     const el =( vnode.el = createElement(vnode.type))
     const {children,props} = vnode
-    // for(let key in props){
-    //     const ison = (key:string)=>/^on[A-Z]/.test(key)
-    //     if(ison(key)){
-    //         const event = key.slice(2).toLowerCase()
-    //         el.addEventListener(event,props[key])
-    //     }else{
-    //         el.setAttribute(key,props[key])
-    //     }
-    // }
-    patchProps(props,el)
+    for(let key in props){
+        patchProps(key,null,props[key],el)    
+    }
     
     if(shapeFlag & SHAPEFLAGS.text_children){
         // el.textContent = children

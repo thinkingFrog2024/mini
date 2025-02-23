@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "build": "rollup -c r.config.js"
+    "build": "rollup -c rollup.config.js"
   },
   "author": "",
   "license": "ISC",

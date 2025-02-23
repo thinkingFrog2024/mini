@@ -8,6 +8,7 @@ export default {
     setup(props){
         const father = inject('father')
         const m = inject('m','mommy')
+        console.log(m,'m')
         const n = inject('n',()=>'function')
         provide('father','father2')
         console.log(father);

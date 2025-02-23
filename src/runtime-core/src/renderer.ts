@@ -1,9 +1,20 @@
 import { isObject } from "../../share";
 import { SHAPEFLAGS } from "../../share/ShapeFlags";
 import { createComponentInstance,setupComponent } from "./component"
+import { createAppApi } from "./createApp";
 import { Fragment,TextNode } from "./symbol";
 
-export function render(vnode,container,parent = null){
+
+// 实现自定义渲染器
+export function createRender(options){
+const{
+    append,
+    createElement,
+    patchProps,
+    setContent
+} = options
+
+function render(vnode,container,parent = null){
     patch(vnode,container,parent)
 }
 
@@ -36,7 +47,9 @@ function processFragment(vnode,container,parent){
 
 function processTextNode(vnode,container){
     const text = document.createTextNode(vnode.children)
-    container.append(text)
+    // container.append(text)
+    append(text,container)
+    
 }
 
 function processComponent(vnode,container,parent){
@@ -58,20 +71,22 @@ function mountComponent(vnode,container,parent){
 
 function mountElement(vnode,container,parent){
     const {shapeFlag} = vnode
-    const el =( vnode.el = document.createElement(vnode.type))
+    const el =( vnode.el = createElement(vnode.type))
     const {children,props} = vnode
-    for(let key in props){
-        const ison = (key:string)=>/^on[A-Z]/.test(key)
-        if(ison(key)){
-            const event = key.slice(2).toLowerCase()
-            el.addEventListener(event,props[key])
-        }else{
-            el.setAttribute(key,props[key])
-        }
-    }
+    // for(let key in props){
+    //     const ison = (key:string)=>/^on[A-Z]/.test(key)
+    //     if(ison(key)){
+    //         const event = key.slice(2).toLowerCase()
+    //         el.addEventListener(event,props[key])
+    //     }else{
+    //         el.setAttribute(key,props[key])
+    //     }
+    // }
+    patchProps(props,el)
     
     if(shapeFlag & SHAPEFLAGS.text_children){
-        el.textContent = children
+        // el.textContent = children
+        setContent(children,el)
     }else if(shapeFlag & SHAPEFLAGS.array_children){
         console.log('children',children,vnode);
         
@@ -80,7 +95,9 @@ function mountElement(vnode,container,parent){
             patch(ele,el,parent)
         })
     }
-    container.append(el)
+    // container.append(el)
+    append(el,container)
+
 
 
 }
@@ -91,4 +108,8 @@ function setupRenderEffect(instance,vnode,container){
     patch(subTree,container,instance)
     vnode.el = subTree.el
     
+    }
+    return{
+        createApp:createAppApi(render)
+    }
 }

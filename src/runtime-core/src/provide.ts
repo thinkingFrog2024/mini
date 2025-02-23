@@ -11,8 +11,10 @@ export function provide(key,value){
     }
 
 }
-export function inject(key){
+export function inject(key,defaultVal){
     const instance:any = getCurrentInstance()
     const {parents} = instance
-    return parents.provides[key]
+    if(parents){
+        return parents.provides[key]?parents.provides[key]:typeof defaultVal==='function'?defaultVal():defaultVal
+    }
 }

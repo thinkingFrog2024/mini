@@ -1,3 +1,4 @@
+import { effect } from "../../reactivity/src/effect";
 import { isObject } from "../../share";
 import { SHAPEFLAGS } from "../../share/ShapeFlags";
 import { createComponentInstance,setupComponent } from "./component"
@@ -103,11 +104,12 @@ function mountElement(vnode,container,parent){
 }
 
 function setupRenderEffect(instance,vnode,container){
-    const {proxy} = instance
-    const subTree = instance.render.call(proxy)
-    patch(subTree,container,instance)
-    vnode.el = subTree.el
-    
+    effect(()=>{
+        const {proxy} = instance
+        const subTree = instance.render.call(proxy)
+        patch(subTree,container,instance)
+        vnode.el = subTree.el
+    })
     }
     return{
         createApp:createAppApi(render)

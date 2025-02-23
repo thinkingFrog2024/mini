@@ -21,8 +21,12 @@ class RefImpl{
         return this._val
     }
     set value(newVal){
+        console.log('set');
+        console.log(Object.is(this._raw,newVal));
+        
         // 如果接受的值是对象 那么this._val是代理对象 而接受的值是原始对象 所以需要保存没有经过代理的原始对象 进行对比
         if(!Object.is(this._raw,newVal)){
+            // 拦截对象修改 
             this._val = isObject(newVal)?reactive(newVal):newVal
             this._raw = newVal
             triggerEffects(this.deps)

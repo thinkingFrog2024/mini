@@ -61,11 +61,16 @@ function createGetter(isreadOnly = false,shallow = false){
 
 function createSetter(isreadOnly = false){
     return function set(target:Object,key:string|symbol,val:any,receiver){
-        if(!isreadOnly&&target[key]!==val){
-            const res = Reflect.set(target,key,val,receiver)
-            trigger(target,key)
-            return res
-        }else{
+        if(!isreadOnly){
+            if(target[key]!==val){
+                const res = Reflect.set(target,key,val,receiver)
+                trigger(target,key)
+                return res
+            }else{
+                return true
+            }
+            
+        }else if(isreadOnly){
             console.warn('禁止修改只读对象')
             return true
         }

@@ -4,6 +4,7 @@ import { initProps } from "./componentProps"
 import { shallowReadOnly } from "../../reactivity/src/reactive"
 import { emit } from './componentEmit'
 import { initSlots } from "./componentSlots"
+import { proxyRefs } from "../../reactivity"
 export function createComponentInstance(vnode,parents){
     const component = {
         vnode,
@@ -51,7 +52,7 @@ function handleSetupResult(instance,res){
     if(isObject(res)){
         
         // 把setup执行结果挂载在组件实例上面
-        instance.setupState = res
+        instance.setupState = proxyRefs(res)
     }
     finishComponentSetup(instance)
 }

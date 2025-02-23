@@ -1,7 +1,23 @@
-import { createRender } from "../runtime-core";
+// import {createRender} from '../../../../lib/vue.esm'
+console.log(PIXI)
+
+// const game = new PIXI.Application
+// game.init({
+//     width:100,
+//     heigth:100
+// })
 function append(content,container){
     container.append(content)
 }
+// console.log(game)
+// document.body.append(game.canvas)
+const app = new PIXI.Application();
+app.init({
+    width: 800,
+    height: 600,
+    backgroundColor: 0x1099bb
+});
+document.body.appendChild(app.canvas);
 
 function createElement(type){
     const ele = document.createElement(type)
@@ -12,7 +28,7 @@ function createElement(type){
 
 function patchProps(props,el){
     for(let key in props){
-        const ison = (key:string)=>/^on[A-Z]/.test(key)
+        const ison = (key)=>/^on[A-Z]/.test(key)
         if(ison(key)){
             const event = key.slice(2).toLowerCase()
             el.addEventListener(event,props[key])
@@ -26,7 +42,7 @@ function setContent(content,el){
     el.textContent = content
 }
 
-const render:any = createRender({
+const render = createRender({
     append,
     createElement,
     patchProps,
@@ -36,5 +52,3 @@ const render:any = createRender({
 export function createApp(...args){
     return render.createApp(...args)
 }
-
-export * from '../runtime-core'

@@ -1,19 +1,23 @@
 import { h } from "../../../lib/vue.esm.js";
 import { ref } from "../../../lib/vue.esm.js";
-window.self = null
+import son from './son.js'
+
 export default {
     render(){
         
-        return h('div',{},[h('p',{class:'red'},this.a),h('button',{onClick:this.add},'add')])
+        return h('div',{name:'app-div'},[h(son,{a:this.a,name:'子组件'}),h('button',{'onClick':this.add},'点我加a')])
     },  
     setup(){
         let a = ref(0)
+        let msg = ref('xixi')
         let add = ()=>{
-            a.value ++
-            console.log('a的值为：',a)
+            console.log('触发add');
+            a.value++
+            console.log(a.value)
         }
         return{
             a,
+            msg,
             add
         }
     }

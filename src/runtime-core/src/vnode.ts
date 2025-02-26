@@ -35,10 +35,12 @@ export class VNode {
     public props
     public children
     public el
+    public next
     public key
     public shapeFlag
+    public component
     constructor(type, props:any = null, children = null) {
-        
+        this.component = null
         this.type = type;
         this.props = props;
         this.children = children;

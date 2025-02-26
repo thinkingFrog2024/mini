@@ -38,7 +38,7 @@ function patch(n1,n2,container,parent,anchor){
             if(shapeFlag&SHAPEFLAGS.element){
                 processElememt(n1,n2,container,parent,anchor)
             }else if(shapeFlag&SHAPEFLAGS.stateful_component){
-                processComponent(n1,n2,container,parent)
+                processComponent(n1,n2,container,parent,anchor)
             }
     }
 }
@@ -60,16 +60,24 @@ function processTextNode(n1,n2,container){
     
 }
 
-function processComponent(n1,n2,container,parent){
+function processComponent(n1,n2,container,parent,anchor){
     // 初始化
     if(!n1){
-        mountComponent(n2,container,parent)
+        mountComponent(n2,container,parent,anchor)
     }else{
-        updateComponent(n1,n2,container,parent)
+        console.log('触发组件更新',n1,n2);
+        
+        updateComponent(n1,n2,container,parent,anchor)
     }
 }
 
-function updateComponent(n1,n2,container,parent){
+function updateComponent(n1,n2,container,parent,achor){
+    debugger
+    // 更新组件就是再次调用组件的rnder函数得到虚拟节点树 使用新的数据进行渲染 也就是再次执行effect函数里面的逻辑
+    // 可以利用effect函数返回的runner 把这个runner挂载在组件的update属性上面 这样在函数里面就可以通过组件实例调用更新逻辑
+    const instance = (n2.component = n1.component)
+    instance.next = n2
+    instance.update()
 
 }
 
@@ -136,7 +144,7 @@ function updateElementChildren(n1,n2,container,parent,anchor){
             // 虚拟子节点上面挂载了真实子节点
         }
         if(c1!=c2){
-            setContent(c2,container)//inerText这个api会清除元素里面所有的内容 包括子节点
+            setContent(c2,el)//inerText这个api会清除元素里面所有的内容 包括子节点
         }
     }else{
         if(shapeFlag&SHAPEFLAGS.array_children){
@@ -156,7 +164,7 @@ function updateElementChildren(n1,n2,container,parent,anchor){
 
 }
 
-
+// 这里应该有问题 把父组件给我清空了
 function patchKeyedChildren(c1,c2,container,parent,parentAnchor){
     // i指针指向两个数组的第一个节点
     // e1指向c1的最后一个节点
@@ -218,7 +226,6 @@ function patchKeyedChildren(c1,c2,container,parent,parentAnchor){
         // 删除元素
         removeChilds(c1[i].el)
     }else{
-        // debugger
         console.log('中间对比');
         
         // 中间对比
@@ -331,11 +338,12 @@ function unMountedChildren(node){
 
 
 
-function mountComponent(vnode,container,parent){
-    const instance = createComponentInstance(vnode,parent)
+function mountComponent(vnode,container,parent,anchor){
+    // 把组件实例挂载在虚拟节点上 这样就可以通过虚拟节点调用update函数
+    const instance = (vnode.component = createComponentInstance(vnode,parent))
     setupComponent(instance)
     // 组件完成setup开始render 渲染视图
-    setupRenderEffect(instance,vnode,container)
+    setupRenderEffect(instance,vnode,container,anchor)
 }
 
 function mountElement(vnode,container,parent,anchor){
@@ -363,8 +371,8 @@ function mountChildren(children,el,parent,anchor){
     })
 }
 
-function setupRenderEffect(instance,vnode,container){
-    effect(()=>{
+function setupRenderEffect(instance,vnode,container,anchor){
+    instance.update = effect(()=>{
         console.log('instance.isMounted',instance.isMounted);
         
         if(!instance.isMounted){
@@ -376,16 +384,23 @@ function setupRenderEffect(instance,vnode,container){
             vnode.el = subTree.el
             instance.isMounted = true
         }else{
-            debugger
             console.log('更新');
             const {proxy} = instance
+            // 在获得虚拟节点之前 需要更新组件的props
+            // 有点不懂 这里组建的更新是触发依赖进行patch之后再回到这个函数？
+            const {next,vnode} = instance
+            if(next){
+                next.el = vnode.el
+                updateComponnentInstanceBeforeRender(instance,next)
+            }
             const subTree  =  instance.render.call(proxy)
+            console.log('sub',subTree);
+            
             const prevTree = instance.subTree
-            patch(prevTree,subTree,container,parent,null)
+            patch(prevTree,subTree,container,instance,anchor)
             // 对比逻辑
             // 更新subtree
             instance.subTree = subTree
-
         }
         
     })
@@ -393,6 +408,12 @@ function setupRenderEffect(instance,vnode,container){
     return{
         createApp:createAppApi(render)
     }
+}
+
+function updateComponnentInstanceBeforeRender(instance,nextVnode){
+    instance.props = nextVnode.props
+    instance.vnode = nextVnode
+    instance.next  = null
 }
 
 function getSequence(arr: number[]): number[] {

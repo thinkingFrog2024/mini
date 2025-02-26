@@ -20,12 +20,12 @@ export default {
 
         // 2
         const narr = h('div',{},[
-            h('p',{key:'a'},'a'),
+            h('p',{key:'a',name : 'a'},'a'),
             h('p',{key:'b'},'b'),
             h('p',{key:'c'},'c'),
         ])
         const oarr = h('div',{},[
-            h('p',{key:'a'},'a'),
+            h('p',{key:'a',name:'a'},'a'),
             h('p',{key:'b'},'b'),
             h('p',{key:'e'},'e'),
             h('p',{key:'v'},'v'),

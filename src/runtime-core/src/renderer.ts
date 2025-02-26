@@ -62,7 +62,15 @@ function processTextNode(n1,n2,container){
 
 function processComponent(n1,n2,container,parent){
     // 初始化
-    mountComponent(n2,container,parent)
+    if(!n1){
+        mountComponent(n2,container,parent)
+    }else{
+        updateComponent(n1,n2,container,parent)
+    }
+}
+
+function updateComponent(n1,n2,container,parent){
+
 }
 
 function processElememt(n1,n2,container,parent,anchor){
@@ -93,16 +101,14 @@ function patchElement(n1,n2,container,parent,anchor){
 }
 
 function updateElementProps(newProps,oldProps,el){
-    if(!(oldProps!=newProps)){
-        for(let key in newProps){
-            if(newProps[key]!=oldProps[key]){
-                patchProps(key,oldProps[key],newProps[key],el)
-            }
+    for(let key in newProps){
+        if(newProps[key]!=oldProps[key]){
+            patchProps(key,oldProps[key],newProps[key],el)
         }
-        for(let key in oldProps){
-            if(!(key in newProps)){
-                patchProps(key,oldProps[key],null,el)
-            }
+    }
+    for(let key in oldProps){
+        if(!(key in newProps)){
+            patchProps(key,oldProps[key],null,el)
         }
     }
 }
@@ -123,7 +129,6 @@ function updateElementChildren(n1,n2,container,parent,anchor){
     // text=>text
     if(newFlag&SHAPEFLAGS.text_children){
         if(shapeFlag&SHAPEFLAGS.array_children){
-            console.log('1111111');
             
             // 移除所有子节点 再设置文本内容 这个移除节点也应该是一个稳定的接口
             unMountedChildren(n1)
@@ -131,18 +136,14 @@ function updateElementChildren(n1,n2,container,parent,anchor){
             // 虚拟子节点上面挂载了真实子节点
         }
         if(c1!=c2){
-            console.log('22222222');
-            
-            console.log('文本更新',c2.children);
-            setContent(c2,container)
+            setContent(c2,container)//inerText这个api会清除元素里面所有的内容 包括子节点
         }
     }else{
         if(shapeFlag&SHAPEFLAGS.array_children){
-            console.log(3333333);
             // 暴力
             // unMountedChildren(n1)
             // mountChildren(c2,el,parent)
-            console.log('调用更新元素',el);
+            console.log();
             
             patchKeyedChildren(c1,c2,el,parent,anchor)
 
@@ -375,6 +376,7 @@ function setupRenderEffect(instance,vnode,container){
             vnode.el = subTree.el
             instance.isMounted = true
         }else{
+            debugger
             console.log('更新');
             const {proxy} = instance
             const subTree  =  instance.render.call(proxy)

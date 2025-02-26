@@ -35,12 +35,14 @@ export class VNode {
     public props
     public children
     public el
+    public key
     public shapeFlag
-    constructor(type, props = null, children = null) {
+    constructor(type, props:any = null, children = null) {
         
         this.type = type;
         this.props = props;
         this.children = children;
+        this.key = props?props.key:undefined
         this.el = null; // 真实 DOM 元素
         this.shapeFlag = this.getShapeFlag(type);
 

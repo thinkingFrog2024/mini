@@ -5,8 +5,8 @@ export default {
         // 三个问题场景：属性的值被修改/变成undefined/属性不存在了
         console.log('isArray',this.isArray);
         const self = this
-        const arrchild = h('div',{},[h('p',{},'数组里的第一个p'+self.isArray),h('p',{},'数组里的第二个p'),createTextNode('文本节点')])
-        const textChild = h('p',{},'字符串children'+self.isArray)
+        const arrchild = h('div',{},[h('p',{},'数组里的第一个p')])
+        const textChild = h('div',{},'字符串children'+self.isArray)
         return  self.isArray === true?arrchild:textChild
     },  
     setup(){

@@ -4,6 +4,7 @@ import { SHAPEFLAGS } from "../../share/ShapeFlags";
 import { shouldUpdate } from "./CcomponenetUpdateUtils";
 import { createComponentInstance,setupComponent } from "./component"
 import { createAppApi } from "./createApp";
+import { queueJobs } from "./queue";
 import { Fragment,TextNode } from "./symbol";
 
 // el:吧真实节点挂载在虚拟节点上面 如果在数组里面的文本虚拟节点也要记录el 就要把createVnode（textNode）函数返回的vnode上面的el绑定上真实节点
@@ -66,7 +67,6 @@ function processComponent(n1,n2,container,parent,anchor){
     if(!n1){
         mountComponent(n2,container,parent,anchor)
     }else{
-        console.log('触发组件更新',n1,n2);
         
         updateComponent(n1,n2,container,parent,anchor)
     }
@@ -74,7 +74,6 @@ function processComponent(n1,n2,container,parent,anchor){
 
 function updateComponent(n1,n2,container,parent,achor){
     const instance = (n2.component = n1.component)
-    debugger
     if(shouldUpdate(n1.props,n2.props)){
         instance.next = n2
         instance.update()
@@ -89,10 +88,8 @@ function updateComponent(n1,n2,container,parent,achor){
 
 function processElememt(n1,n2,container,parent,anchor){
     if(n1){
-        console.log('更新element');
         patchElement(n1,n2,container,parent,anchor)
     }else{
-        console.log('初始化ele');
         mountElement(n2,container,parent,anchor)
     }
 }
@@ -133,13 +130,9 @@ function updateElementChildren(n1,n2,container,parent,anchor){
     // 而n2是新的
     const newFlag = n2.shapeFlag
     const c1 = n1.children
-    console.log('c2',n2);
     
     const c2 = n2.children
     const el = n1.el
-    console.log('el',el);
-    console.log('nel',n2.el);
-    
     
     // array=>text
     // text=>text
@@ -159,12 +152,10 @@ function updateElementChildren(n1,n2,container,parent,anchor){
             // 暴力
             // unMountedChildren(n1)
             // mountChildren(c2,el,parent)
-            console.log();
             
             patchKeyedChildren(c1,c2,el,parent,anchor)
 
         }else{
-            console.log(container,el);
             setContent(null,container)
             mountChildren(c2,container,parent,anchor)
         }
@@ -240,7 +231,6 @@ function patchKeyedChildren(c1,c2,container,parent,parentAnchor){
         // 删除元素
         removeChilds(c1[i].el)
     }else{
-        console.log('中间对比');
         
         // 中间对比
         const keytoindex = new Map()
@@ -307,8 +297,6 @@ function patchKeyedChildren(c1,c2,container,parent,parentAnchor){
                 const nextIndex = i+s2//i = e2-s2=>nextIndex = e2
                 const nextChild = c2[nextIndex]
                 const anchor = nextIndex+1<l2?c2[nextIndex+1].el:null
-                console.log('anchor',anchor);
-                
                 // 旧的125436
                 // 新的312465
                 // 映射：401352：newIndextoOldIndexMAp 记录了新旧数组序列号的映射关系  
@@ -387,10 +375,8 @@ function mountChildren(children,el,parent,anchor){
 
 function setupRenderEffect(instance,vnode,container,anchor){
     instance.update = effect(()=>{
-        console.log('instance.isMounted',instance.isMounted);
         
         if(!instance.isMounted){
-            console.log('初始化');
             
             const {proxy} = instance
             const subTree =( instance.subTree =  instance.render.call(proxy))
@@ -398,7 +384,6 @@ function setupRenderEffect(instance,vnode,container,anchor){
             vnode.el = subTree.el
             instance.isMounted = true
         }else{
-            console.log('更新');
             const {proxy} = instance
             // 在获得虚拟节点之前 需要更新组件的props
             // 有点不懂 这里组建的更新是触发依赖进行patch之后再回到这个函数？
@@ -410,7 +395,6 @@ function setupRenderEffect(instance,vnode,container,anchor){
                 updateComponnentInstanceBeforeRender(instance,next)
             }
             const subTree  =  instance.render.call(proxy)
-            console.log('sub',subTree);
             
             const prevTree = instance.subTree
             patch(prevTree,subTree,container,instance,anchor)
@@ -421,6 +405,11 @@ function setupRenderEffect(instance,vnode,container,anchor){
             instance.subTree = subTree
         }
         
+    },{
+        schelduler(){
+            console.log('执行schelduler');
+            
+            queueJobs(instance.update)}
     })
     }
     return{

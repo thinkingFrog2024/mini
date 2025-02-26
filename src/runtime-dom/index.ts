@@ -37,8 +37,6 @@ function removeChilds(node){
 }
 
 function setContent(content,el){
-    console.log('set',content,el);
-    
     el.textContent = content
 }
 

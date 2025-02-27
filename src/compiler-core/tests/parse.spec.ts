@@ -86,3 +86,10 @@ describe('解析联合类型',()=>{
         })
     })
 })
+
+test('缺少标签时抛出错误',()=>{
+    
+    expect(()=>{
+        baseParse("<div><span></div>")
+    }).toThrow('缺少结束标签')
+})

@@ -7,16 +7,16 @@ const enum TagType{
 
 export function baseParse(content:string){
     const context = createParserContext(content)
-
-    return createRoot(parseChildren(context,''))
+    console.log(content);
+    
+    return createRoot(parseChildren(context,[]))
 }
 
-function parseChildren(context,parentTag){
+function parseChildren(context,ancestor){
     const nodes:Array<any>= []
     let node
-    while(!isEnd(context,parentTag)){
+    while(!isEnd(context,ancestor)){
         const s = context.source
-        console.log(s);
         
         if(s.startsWith("{{")){
             node = parseInterpolation(context)
@@ -24,7 +24,7 @@ function parseChildren(context,parentTag){
             // 判断是不是元素类型
             if(/[a-z]/i.test(s[1])){
                 
-                node = pareseElement(context)
+                node = pareseElement(context,ancestor)
             }
         }
         // 如果既不是element类型 也不是插值类型 就当作Text类型处理
@@ -36,13 +36,22 @@ function parseChildren(context,parentTag){
     return nodes
 }
 
-function isEnd(context,parentTag){
+function isEnd(context,ancestor){
     // 当source没有值   或者需要结束标签</>的时候 停止循环
     const s = context.source
-    
-    if(parentTag&&s.startsWith("</"+parentTag+'>')){
-        return true
+
+    // 这个处理可以防止在例如：<div><span></div>的情况下进入死循环
+    if(s.startsWith('</')){
+        for(let i = 0;i<ancestor.length;i++){
+            const tag = ancestor[i].tag 
+            if(s.slice(2,2+tag.length)===tag){
+                return true
+            }
+        }
     }
+    // if(parentTag&&s.startsWith("</"+parentTag+'>')){
+    //     return true
+    // }
     return !s
 }
 
@@ -58,11 +67,9 @@ function parseText(context){
             endIndex = index
         }
     }
-    console.log(endIndex,);
     
 
     const content = parseTextData(context,endIndex)
-    console.log(content);
     
     adviceBy(context,content.length)
     return{
@@ -77,7 +84,7 @@ function parseTextData(context,length){
     return context.source.slice(0,length)
 }
 
-function pareseElement(context){
+function pareseElement(context,ancestor){
     // 解析tag
     // 删除处理完成的代码
     // 这个正则表达式括号里面是捕获内容
@@ -85,27 +92,37 @@ function pareseElement(context){
     // 之后的内容是捕获组捕获到的内容 也就是div
 
     // 处理<div>
-    console.log(context.source);
-
-    const element:any = parseTag(context,TagType.Start)
-    console.log(context.source);
+    // <div></div>
+    // <div><span></div>
+    console.log(ancestor);
     
+    const element:any = parseTag(context,TagType.Start)
+    ancestor.push(element)//div sapn
     // 处理element里面的children 经过parseElement的处理element开头的符号已经被去掉了
-    element.children = parseChildren(context,element.tag)
-
+    element.children = parseChildren(context,ancestor)
+    ancestor.pop()
     // 处理</div>
-    console.log(context.source);
 
-    parseTag(context,TagType.End)
-
+    // 如果缺少结束标签 比如<div><span></div>
+    // 那么</div>会被认为是<span>的结束标签
+    // 所以需要验证开始标签 结束标签相同
+    
+    startsWithEndTag(context,element)
     return element
+}
+
+
+function startsWithEndTag(context,element){
+    if(context.source.startsWith('<')&&context.source.slice(2,2+element.tag.length).toLowerCase()=== element.tag.toLowerCase()){
+        parseTag(context,TagType.End)
+    }else{
+        throw Error('缺少结束标签')
+    }
 }
 
 function parseTag(context,type){
     const match:any = /^<\/?([a-z]*)/i.exec(context.source)
 
-    console.log(match,context.source,'-------------------');
-    
     const tag = match[1]
     adviceBy(context,match[0].length)
     adviceBy(context,1)
@@ -118,7 +135,7 @@ function parseTag(context,type){
 }
 
 function parseInterpolation(context){
-    console.log('_________________________________');
+ 
     
 // {{message}}=>message
     const openDelemeter = "{{"
@@ -126,15 +143,12 @@ function parseInterpolation(context){
 
 
     const closeIndex = context.source.indexOf(closeDelimeter,openDelemeter.length)
-    console.log(closeIndex);
     
     adviceBy(context,openDelemeter.length)
     
     const rawContentLength = closeIndex - openDelemeter.length
-    console.log(rawContentLength);
     
     const rawcontent = parseTextData(context,rawContentLength)
-    console.log(rawContentLength);
     
     // 删除已经处理的部分
     adviceBy(context,rawContentLength+closeDelimeter.length)

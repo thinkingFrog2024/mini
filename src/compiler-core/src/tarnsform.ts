@@ -30,17 +30,23 @@ function tranverseNode(node,context){
         case NodeTypes.INTERPOLATION:
             context.helper("toDisplayString")
             break
+        case NodeTypes.ELEMENT:
+        case NodeTypes.ROOT:
+            tranverseChildren(children,context)
+            
         default:
             break
     }
 
-    if(children){
-        for(let i = 0;i<children.length;i++){
-            const node = children[i]
-            tranverseNode(node,context)
-        }
-    }
 }  
+
+function tranverseChildren(children,context){
+    for(let i = 0;i<children.length;i++){
+        const node = children[i]
+        tranverseNode(node,context)
+    }
+}
+
 
 function createTransformContext(root,options){
     const context = {

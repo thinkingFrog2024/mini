@@ -1,3 +1,4 @@
+import { NodeTypes } from "./ast";
 
 
 
@@ -29,15 +30,56 @@ function createCodegenContext(){
 }
 
 function getNode(node,context){
+    // 处理不同的数据类型
+    switch(node.type){
+        case NodeTypes.TEXT:
+            genText(node,context)
+            break
+        case NodeTypes.ELEMENT:
+            genExpression(node,context)
+            break
+        case NodeTypes.INTERPOLATION:
+            console.log(node)
+            
+            genInterpolation(node,context)
+            break
+        case NodeTypes.SYMPLE_EXPRESSION:
+            genExpression(node,context)
+            break
+                
+            
+    }
+    
+}
+
+function genExpression(node,context){
+    const {push} = context
+    // 这个应该放在transform里面进行处理
+    // push('_ctx.')
+    push(node.content)
+}
+
+function genText(node,context){
     const {push} = context
     push(`return ${node.content}`)
+}
+
+function genInterpolation(node,context){
+    const {push} = context
+    push(`_toDisplayString(`)
+    console.log(node.content);
+    
+    getNode(node.content,context)
+    push(')')
 }
 
 function getFunctionPreamble(ast,context){
     const {push} = context
     const vueBinging = 'Vue'
     const aliasHelpers = (s)=>`${s}:_${s}`
-    push(`const {${ast.helpers.map(aliasHelpers).join(',')} = ${vueBinging}}`)
+    if(ast.helpers.length>0){
+        push(`const {${ast.helpers.map(aliasHelpers).join(',')} = ${vueBinging}}`)
+    }
     push('\n')
     push('return    ')
 }

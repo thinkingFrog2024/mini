@@ -16,6 +16,8 @@ function parseChildren(context,parentTag){
     let node
     while(!isEnd(context,parentTag)){
         const s = context.source
+        console.log(s);
+        
         if(s.startsWith("{{")){
             node = parseInterpolation(context)
         }else if(s[0]=='<'){
@@ -48,14 +50,20 @@ function parseText(context){
 
     // 遇到插值语法的时候应该停止截取
     let endIndex = context.source.length
-    const endToken = "{{"
-    const index = context.source.indexOf(endToken)
-    if(index!=-1){
-        endIndex = index
+    const endToken = ["{{","<"]
+    let index
+    for(let i = 0;i<endToken.length;i++){
+        index = context.source.indexOf(endToken[i])
+        if(index!=-1&&index<endIndex){
+            endIndex = index
+        }
     }
-
+    console.log(endIndex,);
+    
 
     const content = parseTextData(context,endIndex)
+    console.log(content);
+    
     adviceBy(context,content.length)
     return{
         type:NodeTypes.TEXT,
@@ -77,11 +85,17 @@ function pareseElement(context){
     // 之后的内容是捕获组捕获到的内容 也就是div
 
     // 处理<div>
+    console.log(context.source);
+
     const element:any = parseTag(context,TagType.Start)
+    console.log(context.source);
+    
     // 处理element里面的children 经过parseElement的处理element开头的符号已经被去掉了
     element.children = parseChildren(context,element.tag)
 
     // 处理</div>
+    console.log(context.source);
+
     parseTag(context,TagType.End)
 
     return element
@@ -89,6 +103,9 @@ function pareseElement(context){
 
 function parseTag(context,type){
     const match:any = /^<\/?([a-z]*)/i.exec(context.source)
+
+    console.log(match,context.source,'-------------------');
+    
     const tag = match[1]
     adviceBy(context,match[0].length)
     adviceBy(context,1)

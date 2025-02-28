@@ -5,7 +5,6 @@ import { CREATEELEMENTVNODE, helpMapName, TODISPLAYSTRING } from "./transforms/r
 // 插值生成render函数相比于字符串生成render函数多了一个导入逻辑 返回数据的时候是通过函数调用:toDisplayString(因为从代理对象里面取出的值未必是一个字符串)
 
 export function generate(ast){
-    console.log(ast);
     
     const context = createCodegenContext() //前导函数
     const {push} = context
@@ -14,7 +13,8 @@ export function generate(ast){
     const args = ['_ctx','_cache'] //参数数组
     const signature = args.join(',') //数组转成string
     push(`function ${functionName}(${signature}){`) //拼接 
-    push('return')
+    push('\n')
+    push('return ')
     getNode(ast.codegenNode,context) //处理不同类型的节点
     push('}')
 
@@ -46,7 +46,6 @@ function getNode(node,context){
             genElement(node,context)
             break
         case NodeTypes.INTERPOLATION:
-            console.log(node)
             
             genInterpolation(node,context)
             break
@@ -75,14 +74,19 @@ function genCompound(node,context){
 
 function genElement(node,context){
     const {push,helper} = context
-    const {tag,children} = node
-    push(`${helper(CREATEELEMENTVNODE)}(${tag}),null`)
+    const {tag,children,props} = node
+    const [gtag,gchildren,gprops] = genNullable([tag,children,props])
+    push(`${helper(CREATEELEMENTVNODE)}(${gtag}),${gprops},`)
     // push(`${helper(CREATEELEMENTVNODE)}(${tag}),null,"hi," + _toDisplayString(_ctx.message)}`)
     // 处理子节点
     for(let i = 0;i<children.length;i++){
         const child = children[i]
         getNode(child,context)
     }
+}
+
+function genNullable(args){
+    return args.map((arg)=>arg||"null")
 }
 
 function genExpression(node,context){
@@ -100,7 +104,6 @@ function genText(node,context){
 function genInterpolation(node,context){
     const {push,helper} = context
     push(`${helper(TODISPLAYSTRING)}(`)
-    console.log(node.content);
     
     getNode(node.content,context)
     push(')')

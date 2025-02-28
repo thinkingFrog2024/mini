@@ -7,7 +7,6 @@ const enum TagType{
 
 export function baseParse(content:string){
     const context = createParserContext(content)
-    console.log(content);
     
     return createRoot(parseChildren(context,[]))
 }
@@ -17,10 +16,10 @@ function parseChildren(context,ancestor){
     let node
     while(!isEnd(context,ancestor)){
         const s = context.source
-        console.log(s);
         
         
         if(s.startsWith("{{")){
+            
             node = parseInterpolation(context)
         }else if(s[0]=='<'){
             // 判断是不是元素类型
@@ -28,11 +27,12 @@ function parseChildren(context,ancestor){
                 
                 node = pareseElement(context,ancestor)
             }
+        }else{
+            node = parseText(context)
+
         }
         // 如果既不是element类型 也不是插值类型 就当作Text类型处理
-        if(!node){
-            node = parseText(context)
-        }
+
         nodes.push(node)
     }
     return nodes

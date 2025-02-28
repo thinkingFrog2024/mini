@@ -1,9 +1,9 @@
+import { generateLayoutHash } from "pixi.js";
 import { NodeTypes } from "./ast";
 import { TODISPLAYSTRING } from "./transforms/runtimeHelp";
 
 export function transform(root,options){
     // 遍历 修改textContent
-    console.log(options);
     
     const context = createTransformContext(root,options)
 
@@ -17,7 +17,6 @@ function createRootcodegen(root){
 }
 
 function tranverseNode(node,context){
-    console.log(node);
     const nodeTransform = context.options.nodeTransforms
     if(nodeTransform){
         for(let i = 0;i<nodeTransform.length;i++){
@@ -26,14 +25,19 @@ function tranverseNode(node,context){
     }
 
     const {children,type} = node
-
+    console.log('node',node);
+    
     switch(type){
         case NodeTypes.INTERPOLATION:
+            console.log('iiiiiiiiiiiiii');
+            
             context.helper(TODISPLAYSTRING)
+            console.log(context.helper);
+            
             break
-        case NodeTypes.ELEMENT:
         case NodeTypes.ROOT:
         case NodeTypes.COMPOUND:
+        case NodeTypes.ELEMENT:
             tranverseChildren(children,context)
             
         default:

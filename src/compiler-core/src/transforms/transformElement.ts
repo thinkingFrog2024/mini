@@ -5,5 +5,6 @@ import { CREATEELEMENTVNODE } from "./runtimeHelp";
 export function trandformElement(node,context){
     if(node.type === NodeTypes.ELEMENT){
         context.helper(CREATEELEMENTVNODE)
+        node.tag = `'${node.tag}'`
     }
 }

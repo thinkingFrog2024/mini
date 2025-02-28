@@ -26,10 +26,15 @@
 //     ?SHAPEFLAGS.stateful_component
 //     :SHAPEFLAGS.element
 // }
-
+export function toDisplayString(val){
+    return String(val)
+}
 import { isObject } from "../../share";
 import { SHAPEFLAGS } from "../../share/ShapeFlags";
 import { TextNode } from "./symbol";
+export{
+    createVnode as createElementVNode
+}
 export class VNode {
     public type
     public props
@@ -69,6 +74,7 @@ export class VNode {
 }
 
 export function createVnode(type, props:any = null, children:any = null ) {
+    
     const vnode = new VNode(type, props, children);
     
     return vnode

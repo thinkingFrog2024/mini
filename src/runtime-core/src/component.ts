@@ -61,8 +61,14 @@ function handleSetupResult(instance,res){
 
 function finishComponentSetup(instance){
     const component = instance.type
+    if(compiler&&!component.render){
+        if(component.template){
+            component.render = compiler(component.template)
+        }
+    }
     if(component.render){
         // 给组件实例挂载render函数
+        // 但是用户实际上写的不是render函数 而是一个template 但是这里不应该直接使用编译模块的函数 避免造成强耦合关系
         instance.render = component.render
     }
 }
@@ -74,4 +80,10 @@ export function getCurrentInstance(){
 
 function setCurrentInstance(instance){
     currentInstance = instance
+}
+
+
+let compiler
+export function registerRuntimeCompile(_compiler){
+    compiler = _compiler
 }

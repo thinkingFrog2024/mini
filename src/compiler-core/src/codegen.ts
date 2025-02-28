@@ -19,8 +19,17 @@ export function generate(ast){
     push('}')
 
     return {
-        code:context.code
+        code:remove(context.code)
     } //返回code
+}
+
+function remove(str){
+    console.log(str[str.length-1],str[str.length-2]);
+    
+    if(str[str.length-2] == ','){
+        return str.slice(0, -2) + str.slice(-1);
+    }
+    return str
 }
 
 function createCodegenContext(){
@@ -76,13 +85,18 @@ function genElement(node,context){
     const {push,helper} = context
     const {tag,children,props} = node
     const [gtag,gchildren,gprops] = genNullable([tag,children,props])
-    push(`${helper(CREATEELEMENTVNODE)}(${gtag}),${gprops},`)
+    push(`${helper(CREATEELEMENTVNODE)}(${gtag},${gprops},`)
     // push(`${helper(CREATEELEMENTVNODE)}(${tag}),null,"hi," + _toDisplayString(_ctx.message)}`)
     // 处理子节点
+    push('[')
+
     for(let i = 0;i<children.length;i++){
         const child = children[i]
         getNode(child,context)
     }
+    push(']')
+
+    push(')')
 }
 
 function genNullable(args){
@@ -116,8 +130,12 @@ function getFunctionPreamble(ast,context){
     // 处理导入逻辑
     const aliasHelpers = (s)=>`${helpMapName[s]}:_${helpMapName[s]}`
     if(ast.helpers.length>0){
-        push(`const {${ast.helpers.map(aliasHelpers).join(',')} = ${vueBinging}}`)
+        push(`const {${ast.helpers.map(aliasHelpers).join(',')}} = ${vueBinging}`)
     }
     push('\n')
     push('return  ')
 }
+// const Vue:any = {}
+// const {createElementVNode:_createElementVNode,toDisplayString:_toDisplayString} = Vue
+// return  function render(_ctx,_cache){
+//     return _createElementVNode('div'),null,'hi, '+_toDisplayString(_ctx.message)+_toDisplayString(_ctx.xixi)+'nini',_createElementVNode('span'),null}

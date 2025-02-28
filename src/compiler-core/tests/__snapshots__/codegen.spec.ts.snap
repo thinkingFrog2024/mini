@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`生成render函数 element生成render函数 1`] = `
-"const {createElementVNode:_createElementVNode = Vue}
+"const {createElementVNode:_createElementVNode} = Vue
 return  function render(_ctx,_cache){
-return _createElementVNode('div'),null,}"
+return _createElementVNode('div',null,[])}"
 `;
 
 exports[`生成render函数 字符串生成render函数 1`] = `
@@ -13,13 +13,13 @@ return 'string'}"
 `;
 
 exports[`生成render函数 插值生成render函数 1`] = `
-"const {toDisplayString:_toDisplayString = Vue}
+"const {toDisplayString:_toDisplayString} = Vue
 return  function render(_ctx,_cache){
 return _toDisplayString(_ctx.message)}"
 `;
 
 exports[`生成render函数 联合类型生成render函数 1`] = `
-"const {createElementVNode:_createElementVNode,toDisplayString:_toDisplayString = Vue}
+"const {createElementVNode:_createElementVNode,toDisplayString:_toDisplayString} = Vue
 return  function render(_ctx,_cache){
-return _createElementVNode('div'),null,'hi, '+_toDisplayString(_ctx.message)+_toDisplayString(_ctx.xixi)+'nini',_createElementVNode('span'),null,}"
+return _createElementVNode('div',null,['hi, '+_toDisplayString(_ctx.message)+_toDisplayString(_ctx.xixi)+'nini',_createElementVNode('span',null,[])])}"
 `;

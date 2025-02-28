@@ -37,6 +37,8 @@ function removeChilds(node){
 }
 
 function setContent(content,el){
+    console.log(';kkkkkkkkkkkkk',content);
+    
     el.textContent = content
 }
 
@@ -53,3 +55,4 @@ export function createApp(...args){
 }
 
 export * from '../runtime-core'
+

@@ -33,7 +33,9 @@ export function transformText(node){
                         j--
                     }else{
                         // 如果下一个元素不是text bane就应该重置容器 离开当前的循环
-                        Container.children.push(',')
+                        if(Container){
+                            Container.children.push(',')
+                        }   
                         Container = null
                         break
                     }

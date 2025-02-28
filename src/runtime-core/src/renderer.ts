@@ -38,6 +38,8 @@ function patch(n1,n2,container,parent,anchor){
             break
         default:
             if(shapeFlag&SHAPEFLAGS.element){
+                console.log(n2);
+                
                 processElememt(n1,n2,container,parent,anchor)
             }else if(shapeFlag&SHAPEFLAGS.stateful_component){
                 processComponent(n1,n2,container,parent,anchor)
@@ -367,9 +369,19 @@ function mountElement(vnode,container,parent,anchor){
 }
 
 function mountChildren(children,el,parent,anchor){
+    
     children.forEach(ele=>{
         // el就是container
-        patch(null,ele,el,parent,anchor)
+            console.log('else-----',ele,'ele');
+        
+        if(typeof ele === 'string'){
+
+            setContent(ele,el)
+            return
+        }else{
+
+            patch(null,ele,el,parent,anchor)
+        }   
     })
 }
 
@@ -379,7 +391,7 @@ function setupRenderEffect(instance,vnode,container,anchor){
         if(!instance.isMounted){
             
             const {proxy} = instance
-            const subTree =( instance.subTree =  instance.render.call(proxy))
+            const subTree =( instance.subTree =  instance.render.call(proxy,proxy))
             patch(null,subTree,container,instance,null)
             vnode.el = subTree.el
             instance.isMounted = true
@@ -394,7 +406,7 @@ function setupRenderEffect(instance,vnode,container,anchor){
                 next.el = vnode.el
                 updateComponnentInstanceBeforeRender(instance,next)
             }
-            const subTree  =  instance.render.call(proxy)
+            const subTree  =  instance.render.call(proxy,proxy)
             
             const prevTree = instance.subTree
             patch(prevTree,subTree,container,instance,anchor)

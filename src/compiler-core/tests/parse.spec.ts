@@ -34,7 +34,7 @@ describe("text",()=>{
 
 })
 
-describe('解析联合类型',()=>{
+describe.only('解析联合类型',()=>{
     it('<div>hi,{{message}}</div>',()=>{
         const ast = baseParse('<div>hi,{{message}}</div>')
         expect(ast.children[0]).toStrictEqual({

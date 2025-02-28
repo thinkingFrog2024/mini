@@ -1,4 +1,5 @@
 import { NodeTypes } from "./ast";
+import { TODISPLAYSTRING } from "./transforms/runtimeHelp";
 
 export function transform(root,options){
     // 遍历 修改textContent
@@ -20,7 +21,7 @@ function tranverseNode(node,context){
     const nodeTransform = context.options.nodeTransforms
     if(nodeTransform){
         for(let i = 0;i<nodeTransform.length;i++){
-            nodeTransform[i](node)
+            nodeTransform[i](node,context)
         }
     }
 
@@ -28,10 +29,11 @@ function tranverseNode(node,context){
 
     switch(type){
         case NodeTypes.INTERPOLATION:
-            context.helper("toDisplayString")
+            context.helper(TODISPLAYSTRING)
             break
         case NodeTypes.ELEMENT:
         case NodeTypes.ROOT:
+        case NodeTypes.COMPOUND:
             tranverseChildren(children,context)
             
         default:
@@ -52,6 +54,10 @@ function createTransformContext(root,options){
     const context = {
         root,
         options,
+        
+        // helper函数接收一个字符串 并且把这个字符串保存在helpers属性里面
+        // 这里的处理是接收一个Symbol 把symbol添加到数组里面 
+        // 这个是基于类型的处理 应该放在trandform里面
         helper(key){
             context.helpers.set(key,1)
         },

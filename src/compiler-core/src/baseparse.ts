@@ -17,6 +17,8 @@ function parseChildren(context,ancestor){
     let node
     while(!isEnd(context,ancestor)){
         const s = context.source
+        console.log(s);
+        
         
         if(s.startsWith("{{")){
             node = parseInterpolation(context)
@@ -40,7 +42,7 @@ function isEnd(context,ancestor){
     // 当source没有值   或者需要结束标签</>的时候 停止循环
     const s = context.source
 
-    // 这个处理可以防止在例如：<div><span></div>的情况下进入死循环
+    //这个处理可以防止在例如：<div><span></div>的情况下进入死循环
     if(s.startsWith('</')){
         for(let i = 0;i<ancestor.length;i++){
             const tag = ancestor[i].tag 
@@ -94,7 +96,6 @@ function pareseElement(context,ancestor){
     // 处理<div>
     // <div></div>
     // <div><span></div>
-    console.log(ancestor);
     
     const element:any = parseTag(context,TagType.Start)
     ancestor.push(element)//div sapn

@@ -35,7 +35,9 @@ export function setupComponent(instance){
 let currentInstance  = null
 // 这个函数用于完善组件实例的各项数据
 function setupStatefulComponent(instance){
-    const component = instance.type
+    console.log('setupStatefulComponent',instance);
+    
+    const component = instance.type//初始化的就是一个对象 一个根节点
     // 这里proxy代理的变量应该是上下文环境变量
     instance.proxy = new Proxy({_:instance},publicinstanceProxyHandlers)
 
@@ -43,6 +45,9 @@ function setupStatefulComponent(instance){
     if(setup){
         // props是一个浅层只读
         setCurrentInstance(instance)
+
+        // setup函数执行 
+        // 子组件setup函数里面传入的emit选项里面的函数中的instance应该是父组件实例
         const setupResult = setup(shallowReadOnly(instance.props),{emit:instance.emit})//setup的返回值可能是函数 也可能是对象 
         handleSetupResult(instance,setupResult)
     }

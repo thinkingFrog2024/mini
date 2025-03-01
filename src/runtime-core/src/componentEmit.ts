@@ -1,5 +1,8 @@
 export function emit(instance,event){
     const {props} = instance
+
+    console.log('emit函数接收的instance',instance,props);
+    
     
     // add=>onAdd
     function capitalize(str:string){
